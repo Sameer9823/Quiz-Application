@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body style="background-color: brown;">
+    <div class="start-button-container">
+      <button id="start-quiz-button">Start Quiz</button>
+    </div>
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <h1>Quiz App</h1>
+        <div class="quiz-stats">
+          <span id="question-counter">Question 1/9</span>
+          <span id="score">Score: 0</span>
+          <span id="timer">Time: 20:00</span>
+        </div>
+      </div>
+      <div class="question">
+        <h2 id="question-text">Question text goes here</h2>
+        <div class="options">
+          <div class="option" id="option-1">Option 1</div>
+          <div class="option" id="option-2">Option 2</div>
+          <div class="option" id="option-3">Option 3</div>
+          <div class="option" id="option-4">Option 4</div>
+        </div>
+      </div>
+      <div class="quiz-controls">
+        <button id="next-button">Next</button>
+      </div>
+    </div>
+    <div class="scoreboard">
+      <h1>Quiz Completed!</h1>
+      <p>Your score: <span id="final-score">0</span></p>
+      <button id="restart-button">Restart</button>
+    </div>
+    <script>
+      const questions = [
+      {
+    question: "What does JavaScript stand for?",
+    options:  ["Java Standard", "JScript", "JavaScript", "Java Syntax"],
+    correctAnswer: 2,
+  },
+  {
+    question:"Which function is used to print content to the console?",
+     options: ["print()", "log()", "console.log()", "write()"],
+      correctAnswer: 2
+    },
+  {
+    question:  "What is the correct way to write a conditional statement for executing code only if 'x' is equal to 5?",
+     options: ["if (x = 5)", "if (x == 5)", "if x = 5", "if x == 5"], 
+    correctAnswer: 1
+   },
+  {
+    question: "Which of the following is not a data type in JavaScript?", 
+    options: ["String", "Boolean", "Float", "Double"], 
+    correctAnswer: 3 
+  },
+  {
+    question: "What is the purpose of the isNaN() function in JavaScript?", 
+    options: ["Checks if a value is not a number", "Checks if a value is a number", "Converts a value to a number", "Rounds a number to the nearest integer"], 
+    correctAnswer: 0 },
+  {
+    question: "Which keyword is used to declare a function in JavaScript?", 
+    options: ["func", "function", "method", "def"], 
+    correctAnswer: "1" 
+  },
+  {
+    question:"What does the term 'DOM' stand for in JavaScript?", 
+    options: ["Document Object Model", "Data Object Model", "Document Oriented Model", "Document Order Model"],
+     correctAnswer: 0 
+  },
+  {
+    question:  "How do you comment out multiple lines in JavaScript?", 
+    options: ["// This is a comment //", "/* This is a comment */", "-- This is a comment --", "# This is a comment #"],
+     correctAnswer: 1 
+    },
+  
+  {
+  question:  "What is the purpose of the parseInt() function in JavaScript?",
+   options: ["Parses a string and returns a floating-point number", "Parses a string and returns an integer", "Parses a number and returns a string", "Parses a floating-point number and returns an integer"],
+   correctAnswer: 1 },
+      ];
+
+      let currentQuestion = 0;
+      let score = 0;
+      let timer;
+
+      const questionCounter = document.getElementById("question-counter");
+      const scoreCounter = document.getElementById("score");
+      const questionText = document.getElementById("question-text");
+      const options = document.querySelectorAll(".option");
+      const nextButton = document.getElementById("next-button");
+      const scoreboard = document.querySelector(".scoreboard");
+      const finalScore = document.getElementById("final-score");
+      const restartButton = document.getElementById("restart-button");
+      const timerDisplay = document.getElementById("timer");
+
+      
+      const startQuizButton = document.getElementById("start-quiz-button");
+      const quizContainer = document.querySelector(".quiz-container");
+
+     
+      startQuizButton.addEventListener("click", () => {
+       
+        startQuizButton.parentElement.style.display = "none";
+       
+        quizContainer.style.display = "block";
+       
+        loadQuestion();
+        startTimer(20 * 60); 
+      });
+
+      
+      nextButton.disabled = true;
+
+      
+      let optionClicked = false;
+
+      function loadQuestion() {
+        if (currentQuestion < questions.length) {
+          questionCounter.textContent = `Question ${currentQuestion + 1}/${questions.length}`;
+          questionText.textContent = questions[currentQuestion].question;
+
+          options.forEach((option, index) => {
+            option.textContent = questions[currentQuestion].options[index];
+            option.style.backgroundColor = "white";
+            option.style.pointerEvents = "auto";
+            option.onclick = function () {
+              handleOptionClick(index);
+            };
+          });
+
+          nextButton.disabled = !optionClicked;
+        } else {
+          showScoreboard();
+        }
+      }
+
+      function handleOptionClick(selectedOptionIndex) {
+        const correctAnswerIndex = questions[currentQuestion].correctAnswer;
+
+        options.forEach((option) => {
+          option.style.pointerEvents = "none";
+          option.onclick = null;
+        });
+
+        if (selectedOptionIndex === correctAnswerIndex) {
+          options[selectedOptionIndex].style.backgroundColor = "green";
+          score++;
+          scoreCounter.textContent = `Score: ${score}`;
+        } else {
+          options[selectedOptionIndex].style.backgroundColor = "red";
+          options[correctAnswerIndex].style.backgroundColor = "green";
+        }
+
+        optionClicked = true;
+        nextButton.disabled = false;
+      }
+
+      function showScoreboard() {
+        clearInterval(timer); 
+        scoreboard.style.display = "block";
+        finalScore.textContent = score;
+      }
+
+      nextButton.addEventListener("click", () => {
+        currentQuestion++;
+        optionClicked = false;
+        nextButton.disabled = true;
+        loadQuestion();
+      });
+
+      restartButton.addEventListener("click", () => {
+        clearInterval(timer); // Stop the timer
+        currentQuestion = 0;
+        score = 0;
+        scoreboard.style.display = "none";
+        loadQuestion();
+        scoreCounter.textContent = "Score: 0";
+        optionClicked = false;
+        startTimer(20 * 60); 
+      });
+
+      function startTimer(seconds) {
+        let remainingSeconds = seconds;
+
+        timer = setInterval(() => {
+          const minutes = Math.floor(remainingSeconds / 60);
+          const secondsDisplay = remainingSeconds % 60;
+          const secondsText = secondsDisplay < 10 ? `0${secondsDisplay}` : secondsDisplay;
+          timerDisplay.textContent = `Time: ${minutes}:${secondsText}`;
+          remainingSeconds--;
+
+          if (remainingSeconds < 0) {
+            clearInterval(timer);
+            timerDisplay.textContent = "Time's up!";
+            showScoreboard();
+          }
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>
